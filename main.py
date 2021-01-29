@@ -158,7 +158,7 @@ def Test():
     gt = torch.LongTensor().cuda()
     pred = torch.LongTensor().cuda()
     with torch.autograd.no_grad():
-        for batch_idx, (_, image, label) in enumerate(dataloader_test):
+        for batch_idx, (image, label) in enumerate(dataloader_test):
             gt = torch.cat((gt, label.cuda()), 0)
             var_image = torch.autograd.Variable(image).cuda()
             var_label = torch.autograd.Variable(label).cuda()

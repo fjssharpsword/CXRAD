@@ -22,11 +22,11 @@ from torchvision.ops import RoIAlign
 #defined by myself
 
 # define ConvAutoencoder architecture
-class PQNet(nn.Module):
+class AENet(nn.Module):
     def __init__(self, is_pre_trained=True):
-        super(PQNet, self).__init__()
+        super(AENet, self).__init__()
         ## encoder layers ##
-        self.msa = MultiScaleAttention()
+        #self.msa = MultiScaleAttention()
         self.dense_net_121 = torchvision.models.densenet121(pretrained=is_pre_trained)
         
         ## decoder layers ##
@@ -88,6 +88,6 @@ class MultiScaleAttention(nn.Module):#multi-scal attention module
 if __name__ == "__main__":
     #for debug   
     x = torch.rand(2, 3, 224, 224)#.to(torch.device('cuda:%d'%7))
-    model = PQNet()#.to(torch.device('cuda:%d'%7))
+    model = AENet()#.to(torch.device('cuda:%d'%7))
     out = model(x)
     print(out.size())

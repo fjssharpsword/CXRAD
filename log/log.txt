@@ -1,0 +1,51 @@
+ Eopch:     1 validation loss = 0.634453, Validataion F1 Score = 0.6486
+ Eopch:     2 validation loss = 0.630387, Validataion F1 Score = 0.6597
+ Eopch:     3 validation loss = 0.621514, Validataion F1 Score = 0.6665
+ Eopch:     4 validation loss = 0.612620, Validataion F1 Score = 0.6789
+ Eopch:     5 validation loss = 0.610300, Validataion F1 Score = 0.6817
+ Eopch:     6 validation loss = 0.606355, Validataion F1 Score = 0.6910
+ Eopch:     7 validation loss = 0.607549, Validataion F1 Score = 0.6868
+ Eopch:     8 validation loss = 0.605578, Validataion F1 Score = 0.6881
+ Eopch:     9 validation loss = 0.604142, Validataion F1 Score = 0.6874
+ Eopch:     1 validation loss = 0.643175, Validataion F1 Score = 0.6418
+ Eopch:     1 validation loss = 0.647010, Validataion F1 Score = 0.6317
+ Eopch:     2 validation loss = 0.623111, Validataion F1 Score = 0.6689
+ Eopch:     3 validation loss = 0.613676, Validataion F1 Score = 0.6804
+ Eopch:     4 validation loss = 0.617202, Validataion F1 Score = 0.6724
+ Eopch:     5 validation loss = 0.621294, Validataion F1 Score = 0.6674
+ Eopch:     1 validation loss = 0.620491, Validataion F1 Score = 0.6686
+ Eopch:     2 validation loss = 0.617737, Validataion F1 Score = 0.6723
+ Eopch:     3 validation loss = 0.614480, Validataion F1 Score = 0.6794
+ Eopch:     4 validation loss = 0.611172, Validataion F1 Score = 0.6784
+ Eopch:     1 validation loss = 0.646312, Validataion F1 Score = 0.6343
+ Eopch:     2 validation loss = 0.618735, Validataion F1 Score = 0.6736
+ Eopch:     1 validation loss = 0.630546, Validataion F1 Score = 0.6553
+ Eopch:     2 validation loss = 0.632250, Validataion F1 Score = 0.6487
+ Eopch:     3 validation loss = 0.628961, Validataion F1 Score = 0.6569
+ Eopch:     4 validation loss = 0.627974, Validataion F1 Score = 0.6625
+ Eopch:     5 validation loss = 0.614516, Validataion F1 Score = 0.6814
+ Eopch:     6 validation loss = 0.617517, Validataion F1 Score = 0.6743
+ Eopch:     7 validation loss = 0.641226, Validataion F1 Score = 0.6492
+ Eopch:     8 validation loss = 0.617531, Validataion F1 Score = 0.6711
+ Eopch:     9 validation loss = 0.617012, Validataion F1 Score = 0.6740
+ Eopch:    10 validation loss = 0.614599, Validataion F1 Score = 0.6771
+ Eopch:    11 validation loss = 0.617458, Validataion F1 Score = 0.6750
+ Eopch:    12 validation loss = 0.612476, Validataion F1 Score = 0.6796
+ Eopch:    13 validation loss = 0.613091, Validataion F1 Score = 0.6769
+ Eopch:    14 validation loss = 0.609643, Validataion F1 Score = 0.6830
+ Eopch:    15 validation loss = 0.609957, Validataion F1 Score = 0.6796
+ Eopch:    16 validation loss = 0.609626, Validataion F1 Score = 0.6783
+ Eopch:    17 validation loss = 0.615195, Validataion F1 Score = 0.6760
+ Eopch:    18 validation loss = 0.612458, Validataion F1 Score = 0.6772
+ Eopch:    19 validation loss = 0.609867, Validataion F1 Score = 0.6829
+ Eopch:    20 validation loss = 0.607237, Validataion F1 Score = 0.6857
+ Eopch:    21 validation loss = 0.608830, Validataion F1 Score = 0.6835
+ Eopch:    22 validation loss = 0.615953, Validataion F1 Score = 0.6764
+ Eopch:    23 validation loss = 0.608542, Validataion F1 Score = 0.6812
+ Eopch:    24 validation loss = 0.611338, Validataion F1 Score = 0.6821
+ Eopch:    25 validation loss = 0.608841, Validataion F1 Score = 0.6887
+ Eopch:    26 validation loss = 0.607186, Validataion F1 Score = 0.6874
+ Eopch:    27 validation loss = 0.612576, Validataion F1 Score = 0.6821
+ Eopch:    28 validation loss = 0.608824, Validataion F1 Score = 0.6835
+ Eopch:    29 validation loss = 0.608512, Validataion F1 Score = 0.6821
+ Eopch:    30 validation loss = 0.608550, Validataion F1 Score = 0.6829

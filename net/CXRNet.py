@@ -36,13 +36,16 @@ class CXRNet(nn.Module):
     def forward(self, x, mask):
         #x: N*C*W*H
         x = self.msa(x) * x
-        x = self.dense_net_121.features(x) #bz*1024*7*7
-
-        mask = self.adapool(mask)##bz*1*224*224->bz*1*7*7
-        mask = mask.ge(0.5).float() #0,1 binarization
-        mask = mask.repeat(1, x.size(1), 1, 1) #bz*1*7*7 -> bz*1024*7*7
 
         x = torch.mul(x, mask)
+
+        x = self.dense_net_121.features(x) #bz*1024*7*7
+
+        #mask = self.adapool(mask)##bz*1*224*224->bz*1*7*7
+        #mask = mask.ge(0.5).float() #0,1 binarization
+        #mask = mask.repeat(1, x.size(1), 1, 1) #bz*1*7*7 -> bz*1024*7*7
+        #x = torch.mul(x, mask)
+
         x = self.avgpool(x)
         x = x.view(x.size(0), -1)
         out = self.classifier(x)
