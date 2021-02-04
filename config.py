@@ -6,9 +6,9 @@ config = {
             'CKPT_PATH': '/data/pycode/CXRAD/model/',
             'log_path':  '/data/pycode/CXRAD/log/',
             'img_path': '/data/pycode/CXRAD/imgs/',
-            'CUDA_VISIBLE_DEVICES': '7', #"0,1,2,3,4,5,6,7"
-            'MAX_EPOCHS': 30, 
-            'BATCH_SIZE': 16, 
+            'CUDA_VISIBLE_DEVICES': "0,1,2,3,4,5,6,7",
+            'MAX_EPOCHS': 20, 
+            'BATCH_SIZE': 512, 
             'TRAN_SIZE': 256,
             'TRAN_CROP': 224
          } 
@@ -28,14 +28,19 @@ transform_seq_train = transforms.Compose([
 ])
 
 #config for NIH-CXR dataset
-PATH_TO_IMAGES_DIR = '/data/fjsdata/NIH-CXR/images/images/'
-PATH_TO_BOX_FILE = '/data/pycode/CXRAD/dataset/fjs_BBox.csv'
-PATH_TO_TRAIN_VAL_BENCHMARK_FILE = '/data/pycode/CXRAD/dataset/bm_train_val.csv'
-PATH_TO_TEST_BENCHMARK_FILE = '/data/pycode/CXRAD/dataset/bm_test.csv'
+PATH_TO_IMAGES_DIR_NIH = '/data/fjsdata/NIH-CXR/images/images/'
+PATH_TO_BOX_FILE_NIH = '/data/pycode/CXRAD/dataset/fjs_BBox.csv'
+PATH_TO_TRAIN_VAL_BENCHMARK_FILE_NIH = '/data/pycode/CXRAD/dataset/bm_train_val.csv'
+PATH_TO_TEST_BENCHMARK_FILE_NIH = '/data/pycode/CXRAD/dataset/bm_test.csv'
 CLASS_NAMES_NIH = ['Atelectasis', 'Cardiomegaly', 'Effusion', 'Infiltration', 'Mass', 'Nodule', 'Pneumonia', 
                'Pneumothorax', 'Consolidation', 'Edema', 'Emphysema', 'Fibrosis', 'Pleural_Thickening', 'Hernia', 'No Finding']
-N_CLASSES_NIH = len(CLASS_NAMES_NIH)
-
+#config for CVTE-CXR dataset
+PATH_TO_IMAGES_DIR_CVTE = '/data/fjsdata/CVTEDR/images'
+PATH_TO_TEST_FILE_CVTE = '/data/pycode/CXRAD/dataset/cvte_test.txt'
 #config for Vin-CXR dataset
+PATH_TO_IMAGES_DIR_Vin_Train = '/data/fjsdata/Vin-CXR/train_val_jpg/'
+PATH_TO_IMAGES_DIR_Vin_Test = '/data/fjsdata/Vin-CXR/test_jpg/'
+CLASS_NAMES_Vin = ['Aortic enlargement', 'Atelectasis', 'Calcification','Cardiomegaly', 'Consolidation', 'ILD', 'Infiltration', \
+        'Lung Opacity', 'Nodule/Mass', 'Other lesion', 'Pleural effusion', 'Pleural thickening', 'Pneumothorax', 'Pulmonary fibrosis', 'No finding']
 
 

@@ -16,20 +16,21 @@ import torch.nn.functional as F
 #define myself
 from config import *
 
-def compute_ROCCurve(gt, pred):
+def compute_ROCCurve(gt, pred, N_CLASSES, CLASS_NAMES, dataset_name):
     #fpr = 1-Specificity, tpr=Sensitivity
     np.set_printoptions(suppress=True) #to float
     thresholds = []
     gt_np = gt.cpu().numpy()
     pred_np = pred.cpu().numpy()
-    color_name =['r','b','k','y','c','g','m','tan','gold','gray','coral','peru','lime','plum']
+    #color ref: https://www.cnblogs.com/darkknightzh/p/6117528.html
+    color_name =['r','b','k','y','c','g','m','tan','gold','gray','coral','peru','lime','plum','seagreen']
     for i in range(N_CLASSES):
         fpr, tpr, threshold = roc_curve(gt_np[:, i], pred_np[:, i])
         auc_score = auc(fpr, tpr)
         plt.plot(fpr, tpr, c = color_name[i], ls = '--', label = u'{}-AUROC{:.4f}'.format(CLASS_NAMES[i],auc_score))
         #select the prediction threshold
-        idx = np.where(tpr>auc_score)[0][0]
-        thresholds.append(threshold[idx])
+        #idx = np.where(tpr>auc_score)[0][0]
+        #thresholds.append(threshold[idx])
 
     #plot and save
     plt.plot((0, 1), (0, 1), c = '#808080', lw = 1, ls = '--', alpha = 0.7)
@@ -41,13 +42,12 @@ def compute_ROCCurve(gt, pred):
     plt.ylabel('Sensitivity')
     plt.grid(b=True, ls=':')
     plt.legend(loc='lower right')
-    plt.title('ROC curve of the benchmark split on the chest X-ray8 dataset')
-    #plt.title('Chest X-ray8 dataset with the benchmark splits')
-    plt.savefig(config['img_path']+'ROCCurve_benchmark.jpg')
+    #plt.title('ROC curve')
+    plt.savefig(config['img_path'] + dataset_name +'_ROCCurve.jpg')
 
     return thresholds
 
-def compute_AUCs(gt, pred):
+def compute_AUCs(gt, pred, N_CLASSES):
     AUROCs = []
     gt_np = gt.cpu().numpy()
     pred_np = pred.cpu().numpy()

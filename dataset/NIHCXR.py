@@ -13,7 +13,7 @@ import sys
 #define by myself
 #sys.path.append("..") 
 #from CXRAD.config import *
-#from config import *
+from config import *
 """
 Dataset: NIH Chest X-Ray8
 https://www.kaggle.com/nih-chest-xrays/data
@@ -39,7 +39,7 @@ class DatasetGenerator(Dataset):
                 for line in f:
                     items = line.strip().split(',') 
                     image_name= items[0]#.split('/')[1]
-                    label = list(items[1].replace(' ', ''))[1:15]
+                    label = list(items[1].replace(' ', ''))[1:16]
                     label = [int(eval(i)) for i in label]
                     image_name = os.path.join(path_to_img_dir, image_name)
                     image_names.append(image_name)
@@ -86,22 +86,23 @@ class DatasetGenerator(Dataset):
     def __len__(self):
         return len(self.image_names)
 
-def get_test_dataloader(batch_size, shuffle, num_workers):
-    dataset_test = DatasetGenerator(path_to_img_dir=PATH_TO_IMAGES_DIR,
-                                    path_to_dataset_file=[PATH_TO_TEST_BENCHMARK_FILE], transform=transform_seq_test)
+def get_test_dataloader_NIH(batch_size, shuffle, num_workers):
+    dataset_test = DatasetGenerator(path_to_img_dir=PATH_TO_IMAGES_DIR_NIH,
+                                    path_to_dataset_file=[PATH_TO_TEST_BENCHMARK_FILE_NIH], transform=transform_seq_test)
     data_loader_test = DataLoader(dataset=dataset_test, batch_size=batch_size,
                                    shuffle=shuffle, num_workers=num_workers, pin_memory=True)
     return data_loader_test
 
-def get_train_dataloader(batch_size, shuffle, num_workers):
-    dataset_train = DatasetGenerator(path_to_img_dir=PATH_TO_IMAGES_DIR,
-                                          path_to_dataset_file=[PATH_TO_TRAIN_VAL_BENCHMARK_FILE], transform=transform_seq_train)
+def get_train_dataloader_NIH(batch_size, shuffle, num_workers):
+    dataset_train = DatasetGenerator(path_to_img_dir=PATH_TO_IMAGES_DIR_NIH,
+                                          path_to_dataset_file=[PATH_TO_TRAIN_VAL_BENCHMARK_FILE_NIH], transform=transform_seq_train)
     data_loader_train = DataLoader(dataset=dataset_train, batch_size=batch_size,
                                    shuffle=shuffle, num_workers=num_workers, pin_memory=True)
     return data_loader_train
+
 """
 #for cross-validation
-def get_train_val_dataloader(batch_size, shuffle, num_workers, split_ratio=0.1):
+def get_train_val_dataloader_NIH(batch_size, shuffle, num_workers, split_ratio=0.1):
     dataset_train_full = DatasetGenerator(path_to_img_dir=PATH_TO_IMAGES_DIR,
                                          path_to_dataset_file=[PATH_TO_TRAIN_VAL_BENCHMARK_FILE], transform=transform_seq_train)
 
@@ -115,6 +116,7 @@ def get_train_val_dataloader(batch_size, shuffle, num_workers, split_ratio=0.1):
                                    shuffle=False, num_workers=num_workers, pin_memory=True)
     return data_loader_train, data_loader_val
 """
+
 #generate box dataset
 class BBoxGenerator(Dataset):
     def __init__(self, path_to_img_dir, path_to_dataset_file, transform=None):
@@ -133,8 +135,8 @@ class BBoxGenerator(Dataset):
         for _, row in boxdata.iterrows():
             image_name = os.path.join(path_to_img_dir, row['Image Index'])
             image_names.append(image_name)
-            label = np.zeros(len(CLASS_NAMES))
-            label[CLASS_NAMES.index(row['Finding Label'])] = 1
+            label = np.zeros(len(CLASS_NAMES_NIH))
+            label[CLASS_NAMES_NIH.index(row['Finding Label'])] = 1
             labels.append(label)
             boxes.append(np.array([row['Bbox [x'], row['y'], row['w'], row['h]']]))#xywh
 
@@ -164,14 +166,14 @@ class BBoxGenerator(Dataset):
         x, y, w, h = int(box[0])*x_scale-crop_del, int(box[1])*y_scale-crop_del, int(box[2])*x_scale, int(box[3])*y_scale
         gtbox = np.array([x,y,w,h])
 
-        return image_name, gtbox, image, torch.FloatTensor(label)
+        return image, torch.FloatTensor(label), gtbox
 
     def __len__(self):
         return len(self.image_names)
 
-def get_bbox_dataloader(batch_size, shuffle, num_workers):
-    dataset_bbox = BBoxGenerator(path_to_img_dir=PATH_TO_IMAGES_DIR, 
-                                 path_to_dataset_file=PATH_TO_BOX_FILE, transform=transform_seq_test)
+def get_bbox_dataloader_NIH(batch_size, shuffle, num_workers):
+    dataset_bbox = BBoxGenerator(path_to_img_dir=PATH_TO_IMAGES_DIR_NIH, 
+                                 path_to_dataset_file=PATH_TO_BOX_FILE_NIH, transform=transform_seq_test)
     data_loader_bbox = DataLoader(dataset=dataset_bbox, batch_size=batch_size,
                                    shuffle=shuffle, num_workers=num_workers, pin_memory=True)
     return data_loader_bbox
@@ -209,9 +211,9 @@ def preprocess():
 
     df_train = pd.DataFrame({'image_index':train_list,'target_vector':train_y})
     print('Trainset statistic, records: %d, fields: %d'%(df_train.shape[0], df_train.shape[1]))
+    df_train.to_csv('/data/pycode/CXRAD/dataset/bm_train_val.csv', index=False, header=False)
     df_test = pd.DataFrame({'image_index':test_list,'target_vector':test_y})
     print('Testset statistic, records: %d, fields: %d'%(df_test.shape[0], df_test.shape[1]))
-    df_train.to_csv('/data/pycode/CXRAD/dataset/bm_train_val.csv', index=False, header=False)
     df_test.to_csv('/data/pycode/CXRAD/dataset/bm_test.csv', index=False, header=False)
 
 if __name__ == "__main__":
@@ -219,10 +221,11 @@ if __name__ == "__main__":
     #preprocess()
 
     #for debug   
-    data_loader = get_test_dataloader(batch_size=10, shuffle=False, num_workers=0)
+    #data_loader = get_test_dataloader(batch_size=10, shuffle=False, num_workers=0)
     #data_loader = get_train_dataloader(batch_size=10, shuffle=True, num_workers=0)
-    #data_loader = get_bbox_dataloader(batch_size=10, shuffle=False, num_workers=0)
-    for batch_idx, (image, label) in enumerate(data_loader):
+    data_loader = get_bbox_dataloader(batch_size=10, shuffle=False, num_workers=0)
+    for batch_idx, (image, label, gtbox) in enumerate(data_loader):
         print(label.shape)
         print(image.shape)
+        print(gtbox.shape)
         break
