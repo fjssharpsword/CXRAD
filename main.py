@@ -30,11 +30,12 @@ from util.evaluation import compute_AUCs, compute_ROCCurve, compute_IoUs
 from util.CAM import CAM
 from dataset.NIHCXR import get_train_dataloader_NIH, get_test_dataloader_NIH, get_bbox_dataloader_NIH
 from dataset.CVTECXR import get_test_dataloader_CVTE
+from dataset.VinCXR import get_train_dataloader_VIN, get_val_dataloader_VIN, get_test_dataloader_VIN
 
 #command parameters
 parser = argparse.ArgumentParser(description='For ChestXRay')
 parser.add_argument('--model', type=str, default='CXRNet', help='CXRNet')
-parser.add_argument('--dataset', type=str, default='NIHCXR', help='NIHCXR')
+parser.add_argument('--dataset', type=str, default='VinCXR', help='VinCXR')
 parser.add_argument('--testset', type=str, default='CVTECXR', help='CVTECXR')
 args = parser.parse_args()
 #config
@@ -46,6 +47,9 @@ def Train():
     if args.dataset == 'NIHCXR':
         dataloader_train = get_train_dataloader_NIH(batch_size=config['BATCH_SIZE'], shuffle=True, num_workers=8)
         dataloader_val = get_test_dataloader_NIH(batch_size=config['BATCH_SIZE'], shuffle=False, num_workers=8)
+    elif args.dataset == 'VinCXR':
+        dataloader_train = get_train_dataloader_VIN(batch_size=config['BATCH_SIZE'], shuffle=True, num_workers=8)
+        dataloader_val = get_val_dataloader_VIN(batch_size=config['BATCH_SIZE'], shuffle=False, num_workers=8)
     else:
         print('No required dataset')
         return
@@ -60,12 +64,20 @@ def Train():
             checkpoint = torch.load(CKPT_PATH)
             model.load_state_dict(checkpoint) #strict=False
             print("=> Loaded well-trained CXRNet model checkpoint of NIH-CXR dataset: "+CKPT_PATH)
-        model = nn.DataParallel(model).cuda()  # make model available multi GPU cores training    
-        optimizer_model = optim.Adam(model.parameters(), lr=1e-3, betas=(0.9, 0.999), eps=1e-08, weight_decay=1e-5)
-        lr_scheduler_model = lr_scheduler.StepLR(optimizer_model , step_size = 10, gamma = 1)
+    elif args.model == 'CXRNet' and args.dataset == 'VinCXR':
+        N_CLASSES = len(CLASS_NAMES_Vin)
+        model = CXRNet(num_classes=N_CLASSES, is_pre_trained=True)#initialize model
+        CKPT_PATH = config['CKPT_PATH'] + args.model + '_' + args.dataset + '_best.pkl'
+        if os.path.exists(CKPT_PATH):
+            checkpoint = torch.load(CKPT_PATH)
+            model.load_state_dict(checkpoint) #strict=False
+            print("=> Loaded well-trained CXRNet model checkpoint of NIH-CXR dataset: "+CKPT_PATH)
     else: 
         print('No required model')
         return #over
+    model = nn.DataParallel(model).cuda()  # make model available multi GPU cores training    
+    optimizer_model = optim.Adam(model.parameters(), lr=1e-3, betas=(0.9, 0.999), eps=1e-08, weight_decay=1e-5)
+    lr_scheduler_model = lr_scheduler.StepLR(optimizer_model , step_size = 10, gamma = 1)
     torch.backends.cudnn.benchmark = True  # improve train speed slightly
     bce_criterion = nn.BCELoss() #define binary cross-entropy loss
     print('********************load model succeed!********************')
@@ -79,7 +91,7 @@ def Train():
         model.train()  #set model to training mode
         train_loss = []
         with torch.autograd.enable_grad():
-            for batch_idx, (image, label) in enumerate(dataloader_train):
+            for batch_idx, (image, label, _) in enumerate(dataloader_train):
                 var_image = torch.autograd.Variable(image).cuda()
                 var_label = torch.autograd.Variable(label).cuda()
 
@@ -100,7 +112,7 @@ def Train():
         gt = torch.FloatTensor().cuda()
         pred = torch.FloatTensor().cuda()
         with torch.autograd.no_grad():
-            for batch_idx, (image, label) in enumerate(dataloader_val):
+            for batch_idx, (image, label, _) in enumerate(dataloader_val):
                 var_image = torch.autograd.Variable(image).cuda()
                 var_label = torch.autograd.Variable(label).cuda()
                 _, var_output = model(var_image)#forward
@@ -129,6 +141,8 @@ def Test():
         dataloader_test = get_test_dataloader_NIH(batch_size=config['BATCH_SIZE'], shuffle=False, num_workers=8)
     elif args.testset == 'CVTECXR':
         dataloader_test = get_test_dataloader_CVTE(batch_size=config['BATCH_SIZE'], shuffle=False, num_workers=8)
+    elif args.testset == 'VinCXR':
+        dataloader_test = get_test_dataloader_CVTE(batch_size=config['BATCH_SIZE'], shuffle=False, num_workers=8)
     else:
         print('No required dataset')
         return
@@ -145,10 +159,20 @@ def Test():
             checkpoint = torch.load(CKPT_PATH)
             model.load_state_dict(checkpoint) #strict=False
             print("=> Loaded well-trained CXRNet model checkpoint of NIH-CXR dataset: "+CKPT_PATH) 
-        model.eval()
+    elif args.model == 'CXRNet' and args.dataset == 'VinCXR':
+        CLASS_NAMES = CLASS_NAMES_Vin
+        N_CLASSES = len(CLASS_NAMES_Vin)
+        model = CXRNet(num_classes=N_CLASSES, is_pre_trained=True).cuda()#initialize model
+        CKPT_PATH = config['CKPT_PATH'] + args.model + '_' + args.dataset + '_best.pkl'
+        if os.path.exists(CKPT_PATH):
+            checkpoint = torch.load(CKPT_PATH)
+            model.load_state_dict(checkpoint) #strict=False
+            print("=> Loaded well-trained CXRNet model checkpoint of NIH-CXR dataset: "+CKPT_PATH) 
+
     else: 
         print('No required model')
         return #over
+    model.eval()
     torch.backends.cudnn.benchmark = True  # improve train speed slightly
     print('******************** load model succeed!********************')
 
