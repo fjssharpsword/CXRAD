@@ -142,7 +142,7 @@ def Test():
     elif args.testset == 'CVTECXR':
         dataloader_test = get_test_dataloader_CVTE(batch_size=config['BATCH_SIZE'], shuffle=False, num_workers=8)
     elif args.testset == 'VinCXR':
-        dataloader_test = get_test_dataloader_CVTE(batch_size=config['BATCH_SIZE'], shuffle=False, num_workers=8)
+        dataloader_test = get_test_dataloader_VIN(batch_size=config['BATCH_SIZE'], shuffle=False, num_workers=8)
     else:
         print('No required dataset')
         return
@@ -258,7 +258,7 @@ def BoxTest():
         print('The average IoU of {} is {:.4f}'.format(CLASS_NAMES[i], np.array(IoU_dict[i]).mean())) 
 
 def main():
-    #Train()
+    Train()
     Test()
     #BoxTest()
 

@@ -40,9 +40,9 @@ PATH_TO_TEST_FILE_CVTE = '/data/pycode/CXRAD/dataset/cvte_test.txt'
 #config for Vin-CXR dataset
 PATH_TO_IMAGES_DIR_Vin_Train = '/data/fjsdata/Vin-CXR/train_val_jpg/'
 PATH_TO_IMAGES_DIR_Vin_Test = '/data/fjsdata/Vin-CXR/test_jpg/'
-PATH_TO_TEST_FILE_VIN =  '/data/pycode/CXRAD/VinCXR_test.txt'
-PATH_TO_TRAIN_FILE_VIN =  '/data/pycode/CXRAD/VinCXR_train.txt'
-PATH_TO_VAL_FILE_VIN =  '/data/pycode/CXRAD/VinCXR_val.txt'
+PATH_TO_TEST_FILE_VIN =  '/data/pycode/CXRAD/dataset/VinCXR_test.txt'
+PATH_TO_TRAIN_FILE_VIN =  '/data/pycode/CXRAD/dataset/VinCXR_train.txt'
+PATH_TO_VAL_FILE_VIN =  '/data/pycode/CXRAD/dataset/VinCXR_val.txt'
 CLASS_NAMES_Vin = ['Aortic enlargement', 'Atelectasis', 'Calcification','Cardiomegaly', 'Consolidation', 'ILD', 'Infiltration', \
         'Lung Opacity', 'Nodule/Mass', 'Other lesion', 'Pleural effusion', 'Pleural thickening', 'Pneumothorax', 'Pulmonary fibrosis', 'No finding']
 
