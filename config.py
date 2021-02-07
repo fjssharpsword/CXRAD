@@ -10,7 +10,8 @@ config = {
             'MAX_EPOCHS': 20, 
             'BATCH_SIZE': 512, 
             'TRAN_SIZE': 256,
-            'TRAN_CROP': 224
+            'TRAN_CROP': 224,
+            'PROB': 0.5
          } 
 
 transform_seq_test = transforms.Compose([

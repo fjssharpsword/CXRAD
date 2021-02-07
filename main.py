@@ -20,8 +20,9 @@ import torch.optim as optim
 import torchvision
 import torch.nn.functional as F
 from skimage.measure import label
-from sklearn.metrics import roc_auc_score, roc_curve
+from sklearn.metrics import roc_auc_score, roc_curve, auc, f1_score, confusion_matrix
 from sklearn.metrics.pairwise import cosine_similarity
+import matplotlib.pyplot as plt
 #define by myself
 from config import *
 from net.CXRNet import CXRNet
@@ -91,7 +92,7 @@ def Train():
         model.train()  #set model to training mode
         train_loss = []
         with torch.autograd.enable_grad():
-            for batch_idx, (image, label, _) in enumerate(dataloader_train):
+            for batch_idx, (image, label) in enumerate(dataloader_train):
                 var_image = torch.autograd.Variable(image).cuda()
                 var_label = torch.autograd.Variable(label).cuda()
 
@@ -112,7 +113,7 @@ def Train():
         gt = torch.FloatTensor().cuda()
         pred = torch.FloatTensor().cuda()
         with torch.autograd.no_grad():
-            for batch_idx, (image, label, _) in enumerate(dataloader_val):
+            for batch_idx, (image, label) in enumerate(dataloader_val):
                 var_image = torch.autograd.Variable(image).cuda()
                 var_label = torch.autograd.Variable(label).cuda()
                 _, var_output = model(var_image)#forward
@@ -142,7 +143,7 @@ def Test():
     elif args.testset == 'CVTECXR':
         dataloader_test = get_test_dataloader_CVTE(batch_size=config['BATCH_SIZE'], shuffle=False, num_workers=8)
     elif args.testset == 'VinCXR':
-        dataloader_test = get_test_dataloader_VIN(batch_size=config['BATCH_SIZE'], shuffle=False, num_workers=8)
+        dataloader_test = get_val_dataloader_VIN(batch_size=config['BATCH_SIZE'], shuffle=False, num_workers=8)
     else:
         print('No required dataset')
         return
@@ -189,7 +190,7 @@ def Test():
             sys.stdout.write('\r testing process: = {}'.format(batch_idx+1))
             sys.stdout.flush()
     #evaluation
-    if args.testset == 'NIHCXR':
+    if args.testset == 'VinCXR':
         AUROCs = compute_AUCs(gt, pred, N_CLASSES)
         AUROC_avg = np.array(AUROCs).mean()
         for i in range(N_CLASSES):
@@ -198,9 +199,22 @@ def Test():
         compute_ROCCurve(gt, pred, N_CLASSES, CLASS_NAMES, args.dataset) #plot ROC Curve
     elif args.testset == 'CVTECXR':
         gt_np = gt.cpu().numpy()
-        pred_np = pred.cpu().numpy()[:,-1]#No Finding
-        AUROCs = roc_auc_score(gt_np, pred_np)
-        print('The AUROC of {} is {:.4f}'.format(CLASS_NAMES[-1], AUROCs))
+        pred_np = pred.cpu().numpy()
+        for i in range(N_CLASSES):
+            if i==14: #last, reverse 0 and 1
+                AUROCs = roc_auc_score(1-gt_np, pred_np[:,i])
+                print('The AUROC of {} is {:.4f}'.format(CLASS_NAMES[i], AUROCs))
+                #F1 = 2 * (precision * recall) / (precision + recall)
+                f1score = f1_score(gt_np, np.where(pred_np[:,i]>config['PROB'], 0, 1), average='micro')
+                print('\r F1 Score = {:.4f}'.format(f1score))
+                #sensitivity and specificity
+                tn, fp, fn, tp = confusion_matrix(gt_np, np.where(pred_np[:,i]>config['PROB'], 0, 1)).ravel()
+                sen = tp /(tp+fn)
+                spe = tn /(tn+fp)
+                print('\rSensitivity = {:.4f} and specificity = {:.4f}'.format(sen, spe)) 
+            else:
+                AUROCs = roc_auc_score(gt_np, pred_np[:,i])
+                print('The AUROC of {} is {:.4f}'.format(CLASS_NAMES[i], AUROCs))
     else:
         print('No dataset need to evaluate')
 
@@ -259,7 +273,7 @@ def BoxTest():
 
 def main():
     Train()
-    Test()
+    #Test()
     #BoxTest()
 
 if __name__ == '__main__':
