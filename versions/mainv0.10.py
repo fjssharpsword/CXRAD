@@ -181,15 +181,15 @@ def Test():
     print('******* begin testing!*********')
     gt = torch.FloatTensor().cuda()
     pred = torch.FloatTensor().cuda()
-    name_list = []
+    names = []
     with torch.autograd.no_grad():
-        for batch_idx, (image, label, name) in enumerate(dataloader_test):
+        for batch_idx, (name, image, label) in enumerate(dataloader_test):
             var_image = torch.autograd.Variable(image).cuda()
             var_label = torch.autograd.Variable(label).cuda()
             _, var_output = model(var_image)#forward
             gt = torch.cat((gt, label.cuda()), 0)
             pred = torch.cat((pred, var_output.data), 0)
-            name_list.extend(name)
+            names.extend(name)
             sys.stdout.write('\r testing process: = {}'.format(batch_idx+1))
             sys.stdout.flush()
     #evaluation
@@ -203,24 +203,24 @@ def Test():
     elif args.testset == 'CVTECXR':
         gt_np = gt.cpu().numpy()
         pred_np = pred.cpu().numpy()
-        AUROCs = roc_auc_score(1-gt_np, pred_np[:,-1])
-        print('The AUROC of {} is {:.4f}'.format(CLASS_NAMES[-1], AUROCs))
+        for i in range(N_CLASSES):
+            if i==14: #last, reverse 0 and 1
+                AUROCs = roc_auc_score(1-gt_np, pred_np[:,i])
+                print('The AUROC of {} is {:.4f}'.format(CLASS_NAMES[i], AUROCs))
+                #F1 = 2 * (precision * recall) / (precision + recall)
+                f1score = f1_score(gt_np, np.where(pred_np[:,i]>config['PROB'], 0, 1), average='micro')
+                print('\r F1 Score = {:.4f}'.format(f1score))
+                #sensitivity and specificity
+                tn, fp, fn, tp = confusion_matrix(gt_np, np.where(pred_np[:,i]>config['PROB'], 0, 1)).ravel()
+                sen = tp /(tp+fn)
+                spe = tn /(tn+fp)
+                print('\rSensitivity = {:.4f} and specificity = {:.4f}'.format(sen, spe)) 
 
-        pred_np_ad = np.where(pred_np[:,-1]>config['PROB'], 0, 1) #normal=0, abnormal=1
-        pred_np = np.where(pred_np[:, :-1]>1-config['PROB'], 1, 0).sum(axis=1)
-        pred_np_ad = np.logical_or(pred_np_ad, pred_np)
-        #F1 = 2 * (precision * recall) / (precision + recall)
-        f1score = f1_score(gt_np, pred_np_ad, average='micro')
-        print('\r F1 Score = {:.4f}'.format(f1score))
-        #sensitivity and specificity
-        tn, fp, fn, tp = confusion_matrix(gt_np, pred_np_ad).ravel()
-        sen = tp /(tp+fn)
-        spe = tn /(tn+fp)
-        print('\rSensitivity = {:.4f} and specificity = {:.4f}'.format(sen, spe)) 
+                pd.concat([pd.DataFrame(np.array(names)),pd.DataFrame(gt_np), pd.DataFrame(np.where(pred_np[:,i]>config['PROB'], 0, 1))], axis=1).to_csv(config['log_path']+'disan.csv', index=False, header=False, sep=',')
 
-        #result = pd.concat([pd.DataFrame(np.array(name_list)),pd.DataFrame(gt_np), pd.DataFrame(pred_np_ad)], axis=1)
-        #result.to_csv(config['log_path']+'disan.csv', index=False, header=False, sep=',')
-
+            else:
+                AUROCs = roc_auc_score(gt_np, pred_np[:,i])
+                print('The AUROC of {} is {:.4f}'.format(CLASS_NAMES[i], AUROCs))
     else:
         print('No dataset need to evaluate')
 

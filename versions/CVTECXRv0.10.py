@@ -70,7 +70,7 @@ class DatasetGenerator(Dataset):
         except Exception as e:
             print("Unable to read file. %s" % e)
         
-        return image, torch.FloatTensor(label), image_name.split('/')[-1]
+        return image_name.split('/')[-1], image, torch.FloatTensor(label)
 
     def __len__(self):
         return len(self.image_names)
