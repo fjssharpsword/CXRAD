@@ -8,7 +8,7 @@ config = {
             'img_path': '/data/pycode/CXRAD/imgs/',
             'CUDA_VISIBLE_DEVICES': "0,1,2,3,4,5,6,7",
             'MAX_EPOCHS': 20, 
-            'BATCH_SIZE': 512, 
+            'BATCH_SIZE': 256, #512
             'TRAN_SIZE': 256,
             'TRAN_CROP': 224,
             'PROB': 0.5

@@ -18,10 +18,12 @@ import PIL.ImageOps
 from sklearn.utils import shuffle
 import shutil
 from sklearn.model_selection import train_test_split
+from matplotlib import pyplot as plt
+import cv2
 #define by myself
-#sys.path.append("..") 
-#from CXRAD.config import *
-from config import *
+sys.path.append("..") 
+from CXRAD.config import *
+#from config import *
 """
 Dataset: VinBigData Chest X-ray Abnormalities Detection
 https://www.kaggle.com/c/vinbigdata-chest-xray-abnormalities-detection/data
@@ -238,15 +240,15 @@ if __name__ == "__main__":
 
     #for debug   
     
-    #data_loader = get_train_dataloader_VIN(batch_size=10, shuffle=True, num_workers=0)
-    data_loader = get_val_dataloader_VIN(batch_size=10, shuffle=False, num_workers=0)
+    data_loader = get_train_dataloader_VIN(batch_size=10, shuffle=True, num_workers=0)
+    #data_loader = get_val_dataloader_VIN(batch_size=10, shuffle=False, num_workers=0)
     for batch_idx, (image, label, gtbox) in enumerate(data_loader):
         print(label.shape)
         print(image.shape)
         print(gtbox.shape)
         break
 
-    data_loader = get_test_dataloader_VIN(batch_size=10, shuffle=False, num_workers=0)
-    for batch_idx, (image) in enumerate(data_loader):
-        print(image.shape)
-        break
+    #data_loader = get_test_dataloader_VIN(batch_size=10, shuffle=False, num_workers=0)
+    #for batch_idx, (image) in enumerate(data_loader):
+    #    print(image.shape)
+    #    break

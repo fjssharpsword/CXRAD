@@ -27,6 +27,7 @@ import matplotlib.pyplot as plt
 #define by myself
 from config import *
 from net.CXRNet import CXRNet
+from net.SEDenseNet import se_densenet121
 from util.logger import get_logger
 from util.evaluation import compute_AUCs, compute_ROCCurve, compute_IoUs
 from util.CAM import CAM
@@ -68,7 +69,8 @@ def Train():
             print("=> Loaded well-trained CXRNet model checkpoint of NIH-CXR dataset: "+CKPT_PATH)
     elif args.model == 'CXRNet' and args.dataset == 'VinCXR':
         N_CLASSES = len(CLASS_NAMES_Vin)
-        model = CXRNet(num_classes=N_CLASSES, is_pre_trained=True)#initialize model
+        #model = CXRNet(num_classes=N_CLASSES, is_pre_trained=True)#initialize model
+        model = se_densenet121(t_num_classes=N_CLASSES, pretrained=True)#initialize model
         CKPT_PATH = config['CKPT_PATH'] + args.model + '_' + args.dataset + '_best.pkl'
         if os.path.exists(CKPT_PATH):
             checkpoint = torch.load(CKPT_PATH)
@@ -93,7 +95,7 @@ def Train():
         model.train()  #set model to training mode
         train_loss = []
         with torch.autograd.enable_grad():
-            for batch_idx, (image, label, _) in enumerate(dataloader_train):
+            for batch_idx, (image, label, box) in enumerate(dataloader_train):
                 var_image = torch.autograd.Variable(image).cuda()
                 var_label = torch.autograd.Variable(label).cuda()
 
@@ -114,7 +116,7 @@ def Train():
         gt = torch.FloatTensor().cuda()
         pred = torch.FloatTensor().cuda()
         with torch.autograd.no_grad():
-            for batch_idx, (image, label, _) in enumerate(dataloader_val):
+            for batch_idx, (image, label, box) in enumerate(dataloader_val):
                 var_image = torch.autograd.Variable(image).cuda()
                 var_label = torch.autograd.Variable(label).cuda()
                 _, var_output = model(var_image)#forward
@@ -164,7 +166,8 @@ def Test():
     elif args.model == 'CXRNet' and args.dataset == 'VinCXR':
         CLASS_NAMES = CLASS_NAMES_Vin
         N_CLASSES = len(CLASS_NAMES_Vin)
-        model = CXRNet(num_classes=N_CLASSES, is_pre_trained=True).cuda()#initialize model
+        #model = CXRNet(num_classes=N_CLASSES, is_pre_trained=True).cuda()#initialize model
+        model = se_densenet121(t_num_classes=N_CLASSES, pretrained=True).cuda()#initialize model
         CKPT_PATH = config['CKPT_PATH'] + args.model + '_' + args.dataset + '_best.pkl'
         if os.path.exists(CKPT_PATH):
             checkpoint = torch.load(CKPT_PATH)
@@ -278,7 +281,7 @@ def BoxTest():
         print('The average IoU of {} is {:.4f}'.format(CLASS_NAMES[i], np.array(IoU_dict[i]).mean())) 
 
 def main():
-    #Train()
+    Train()
     Test()
     #BoxTest()
 

@@ -10,10 +10,12 @@ import time
 import random
 import re
 import sys
+from matplotlib import pyplot as plt
+import cv2
 #define by myself
-#sys.path.append("..") 
-#from CXRAD.config import *
-from config import *
+sys.path.append("..") 
+from CXRAD.config import *
+#from config import *
 """
 Dataset: NIH Chest X-Ray8
 https://www.kaggle.com/nih-chest-xrays/data
@@ -221,11 +223,10 @@ if __name__ == "__main__":
     #preprocess()
 
     #for debug   
-    #data_loader = get_test_dataloader(batch_size=10, shuffle=False, num_workers=0)
-    #data_loader = get_train_dataloader(batch_size=10, shuffle=True, num_workers=0)
-    data_loader = get_bbox_dataloader(batch_size=10, shuffle=False, num_workers=0)
-    for batch_idx, (image, label, gtbox) in enumerate(data_loader):
+    data_loader = get_test_dataloader_NIH(batch_size=10, shuffle=False, num_workers=0)
+    #data_loader = get_train_dataloader_NIH(batch_size=10, shuffle=True, num_workers=0)
+    #data_loader = get_bbox_dataloader_NIH(batch_size=10, shuffle=False, num_workers=0)
+    for batch_idx, (image, label) in enumerate(data_loader):
         print(label.shape)
         print(image.shape)
-        print(gtbox.shape)
         break

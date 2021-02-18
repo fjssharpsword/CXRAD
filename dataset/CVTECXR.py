@@ -18,11 +18,12 @@ from PIL import Image
 import PIL.ImageOps 
 from sklearn.utils import shuffle
 import shutil
-
+from matplotlib import pyplot as plt
+import cv2
 #define by myself
-#sys.path.append("..") 
-#from CXRAD.config import *
-from config import *
+sys.path.append("..") 
+from CXRAD.config import *
+#from config import *
 """
 Dataset: CVTE ChestXRay
 """
@@ -62,6 +63,22 @@ class DatasetGenerator(Dataset):
         """
         try:
             image_name = self.image_names[index]
+            """
+            if self.labels[index][0] == 0:
+                image = cv2.imread(image_name)
+                chans = cv2.split(image)
+                colors = ("b","g","r")
+                plt.figure()
+                plt.title("Flattened Color Histogram of CVTE-CXR")
+                plt.xlabel("Bins")
+                plt.ylabel("# of Pixels")
+
+                for (chan,color) in zip(chans,colors):
+                    hist = cv2.calcHist([chan],[0],None,[256],[0,256]) #histogram
+                    plt.plot(hist,color = color)
+                    plt.xlim([0,256])
+                plt.savefig(config['img_path']+"his_cvte.png")
+            """
             image = Image.open(image_name).convert('RGB')
             #image.save('/data/pycode/ChestXRay/Imgs/test.jpeg',"JPEG", quality=95, optimize=True, progressive=True)
             label = self.labels[index]
@@ -137,7 +154,7 @@ if __name__ == "__main__":
     
     #for debug   
     data_loader_test = get_test_dataloader_CVTE(batch_size=10, shuffle=True, num_workers=0)
-    for batch_idx, (image, label) in enumerate(data_loader_test):
+    for batch_idx, (image, label, name) in enumerate(data_loader_test):
         print(batch_idx)
         print(image.shape)
         print(label.shape)
