@@ -171,43 +171,12 @@ class SEDenseNet(nn.Module):
             elif isinstance(m, nn.Linear):
                 nn.init.constant_(m.bias, 0)
 
-        #attention
-        self.msa = MultiScaleAttention()
-
     def forward(self, x):
-        x = self.msa(x)*x
         features = self.features(x)
         out = F.relu(features, inplace=True)
         out = F.avg_pool2d(out, kernel_size=7, stride=1).view(features.size(0), -1)
         out = self.classifier(out)
         return  features, out 
-
-class MultiScaleAttention(nn.Module):#multi-scal attention module
-    def __init__(self):
-        super(MultiScaleAttention, self).__init__()
-        
-        self.scaleConv1 = nn.Conv2d(3, 3, kernel_size=5, padding=2, bias=False)
-        self.scaleConv2 = nn.Conv2d(3, 3, kernel_size=9, padding=4, bias=False)
-        
-        self.aggConv = nn.Conv2d(6, 1, kernel_size=3, padding=1, bias=False)
-        self.sigmoid = nn.Sigmoid() 
-        
-    def forward(self, x):
-        out_max, _ = torch.max(x, dim=1, keepdim=True)
-        out_avg = torch.mean(x, dim=1, keepdim=True)
-        
-        out1 = self.scaleConv1(x)
-        out_max1, _ = torch.max(out1, dim=1, keepdim=True)
-        out_avg1 = torch.mean(out1, dim=1, keepdim=True)
-        
-        out2 = self.scaleConv2(x)
-        out_max2, _ = torch.max(out2, dim=1, keepdim=True)
-        out_avg2 = torch.mean(out2, dim=1, keepdim=True)
-
-        x = torch.cat([out_max, out_avg, out_max1, out_avg1, out_max2, out_avg2], dim=1)
-        x = self.sigmoid(self.aggConv(x))
-
-        return x
 
 if __name__ == "__main__":
     #for debug   

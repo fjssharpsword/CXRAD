@@ -69,8 +69,8 @@ def Train():
             print("=> Loaded well-trained CXRNet model checkpoint of NIH-CXR dataset: "+CKPT_PATH)
     elif args.model == 'CXRNet' and args.dataset == 'VinCXR':
         N_CLASSES = len(CLASS_NAMES_Vin)
-        #model = CXRNet(num_classes=N_CLASSES, is_pre_trained=True)#initialize model
-        model = se_densenet121(t_num_classes=N_CLASSES, pretrained=True)#initialize model
+        model = CXRNet(num_classes=N_CLASSES, is_pre_trained=True)#initialize model
+        #model = se_densenet121(t_num_classes=N_CLASSES, pretrained=True)#initialize model
         CKPT_PATH = config['CKPT_PATH'] + args.model + '_' + args.dataset + '_best.pkl'
         if os.path.exists(CKPT_PATH):
             checkpoint = torch.load(CKPT_PATH)
@@ -166,8 +166,8 @@ def Test():
     elif args.model == 'CXRNet' and args.dataset == 'VinCXR':
         CLASS_NAMES = CLASS_NAMES_Vin
         N_CLASSES = len(CLASS_NAMES_Vin)
-        #model = CXRNet(num_classes=N_CLASSES, is_pre_trained=True).cuda()#initialize model
-        model = se_densenet121(t_num_classes=N_CLASSES, pretrained=True).cuda()#initialize model
+        model = CXRNet(num_classes=N_CLASSES, is_pre_trained=True).cuda()#initialize model
+        #model = se_densenet121(t_num_classes=N_CLASSES, pretrained=True).cuda()#initialize model
         CKPT_PATH = config['CKPT_PATH'] + args.model + '_' + args.dataset + '_best.pkl'
         if os.path.exists(CKPT_PATH):
             checkpoint = torch.load(CKPT_PATH)
