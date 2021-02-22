@@ -31,14 +31,14 @@ from config import *
 class CXRNet(nn.Module):
     def __init__(self, num_classes, is_pre_trained=True):
         super(CXRNet, self).__init__()
-        #self.msa = MultiScaleAttention()
+        self.msa = MultiScaleAttention()
         self.dense_net_121 = torchvision.models.densenet121(pretrained=is_pre_trained)
         self.avgpool = nn.AvgPool2d(kernel_size=7, stride=1)
         self.classifier = nn.Sequential(nn.Linear(1024, num_classes), nn.Sigmoid())
         
     def forward(self, x):
         #x: N*C*W*H
-        #x = self.msa(x) * x
+        x = self.msa(x) * x
         x = self.dense_net_121.features(x) #bz*1024*7*7
         out = self.avgpool(x)
         out = out.view(out.size(0), -1)
