@@ -38,9 +38,8 @@ class CXRNet(nn.Module):
         
     def forward(self, x):
         #x: N*C*W*H
-        #x = self.sa(x) * x
-        x = self.dense_net_121.features(x) #bz*1024*7*7
         x = self.sa(x) * x
+        x = self.dense_net_121.features(x) #bz*1024*7*7
         out = self.avgpool(x)
         out = out.view(out.size(0), -1)
         out = self.classifier(out)
