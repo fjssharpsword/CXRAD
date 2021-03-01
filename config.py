@@ -6,8 +6,8 @@ config = {
             'CKPT_PATH': '/data/pycode/CXRAD/model/',
             'log_path':  '/data/pycode/CXRAD/log/',
             'img_path': '/data/pycode/CXRAD/imgs/',
-            'CUDA_VISIBLE_DEVICES': "0,1,2,3,4,5,6,7",
-            'MAX_EPOCHS': 20, 
+            'CUDA_VISIBLE_DEVICES': "1,2,3,4,5,6,7",
+            'MAX_EPOCHS': 50, #20, 
             'BATCH_SIZE': 512,#256
             'TRAN_SIZE': 256,
             'TRAN_CROP': 224,
@@ -22,8 +22,8 @@ transform_seq_test = transforms.Compose([
 ])
 transform_seq_train = transforms.Compose([
    transforms.Resize((256,256)),
-   transforms.CenterCrop(224),
-   #transforms.RandomCrop(224),
+   #transforms.CenterCrop(224),
+   transforms.RandomCrop(224),
    #transforms.RandomVerticalFlip(p=0.5),
    transforms.ToTensor(),
    transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225]),

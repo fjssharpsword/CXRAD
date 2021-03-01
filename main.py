@@ -130,6 +130,7 @@ def Train():
         AUROC_avg = np.array(AUROCs).mean()
         logger.info("\r Eopch: %5d validation loss = %.6f, Validataion AUROC = %.4f" % (epoch + 1, np.mean(val_loss), AUROC_avg)) 
 
+        AUROC_avg = Test()
         if AUROC_best < AUROC_avg:
             AUROC_best = AUROC_avg
             CKPT_PATH = config['CKPT_PATH'] + args.model + '_' + args.dataset + '_best.pkl'
@@ -224,8 +225,12 @@ def Test():
         #result = pd.concat([pd.DataFrame(np.array(name_list)),pd.DataFrame(gt_np), pd.DataFrame(pred_np_ad)], axis=1)
         #result.to_csv(config['log_path']+'disan.csv', index=False, header=False, sep=',')
 
+        return AUROCs
+
     else:
         print('No dataset need to evaluate')
+
+    return 0.0
 
 def BoxTest():
     print('********************load data********************')
@@ -282,7 +287,7 @@ def BoxTest():
 
 def main():
     Train()
-    Test()
+    #Test()
     #BoxTest()
 
 if __name__ == '__main__':
