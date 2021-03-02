@@ -286,8 +286,8 @@ def BoxTest():
         print('The average IoU of {} is {:.4f}'.format(CLASS_NAMES[i], np.array(IoU_dict[i]).mean())) 
 
 def main():
-    Train()
-    #Test()
+    #Train()
+    Test()
     #BoxTest()
 
 if __name__ == '__main__':

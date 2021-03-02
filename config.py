@@ -6,7 +6,7 @@ config = {
             'CKPT_PATH': '/data/pycode/CXRAD/model/',
             'log_path':  '/data/pycode/CXRAD/log/',
             'img_path': '/data/pycode/CXRAD/imgs/',
-            'CUDA_VISIBLE_DEVICES': "1,2,3,4,5,6,7",
+            'CUDA_VISIBLE_DEVICES': "0,1,2,3,4,5,6,7",
             'MAX_EPOCHS': 50, #20, 
             'BATCH_SIZE': 512,#256
             'TRAN_SIZE': 256,
