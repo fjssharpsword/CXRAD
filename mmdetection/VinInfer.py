@@ -21,21 +21,26 @@ import os
 import shutil
 import torch
 from sklearn.metrics import roc_auc_score, roc_curve, auc, f1_score, confusion_matrix
+import matplotlib.patches as patches
+import matplotlib.pyplot as plt
+from PIL import Image
 from mmdet.apis import init_detector, inference_detector
 import mmcv
 
 np.set_printoptions(suppress=True)
 np.set_printoptions(precision=4)
+CLASS_NAMES_Vin = ['Aortic enlargement', 'Atelectasis', 'Calcification','Cardiomegaly', 'Consolidation', 'ILD', 'Infiltration', \
+        'Lung Opacity', 'Nodule/Mass', 'Other lesion', 'Pleural effusion', 'Pleural thickening', 'Pneumothorax', 'Pulmonary fibrosis']
 
 def format_prediction_string(labels, boxes, scores):
     pred_strings = []
     for j in zip(labels, scores, boxes):
         pred_strings.append("{0} {1:.4f} {2} {3} {4} {5}".format(
-            j[0], j[1], j[2][0], j[2][1], j[2][2], j[2][3]))
+            j[0], j[1], int(j[2][0]), int(j[2][1]), int(j[2][2]), int(j[2][3])))
 
     return " ".join(pred_strings)
 
-def TestInfer(score_thr=0.5):
+def TestInfer(score_thr=0.8):
     vin_test_file = '/data/pycode/CXRAD/dataset/VinCXR_test.txt'
     vin_test_image = '/data/fjsdata/Vin-CXR/test_jpg/'
     vin_test_data = '/data/comcode/mmdetection/vincxr/test/'
@@ -47,13 +52,9 @@ def TestInfer(score_thr=0.5):
     model = init_detector(config_file, checkpoint_file, device='cuda:6')
 
     # test images and show the results
-    images = pd.read_csv(vin_test_file, sep=',').values
-    results = []
+    images = pd.read_csv(vin_test_file, sep=',', header=None).values
+    sub_res = []
     for image in images:
-        result = {
-                'image_id': image[0],
-                'PredictionString': '14 1.0 0 0 1 1'
-            }
         img = vin_test_image + image[0]+'.jpeg'
         result = inference_detector(model, img)
         #extract result
@@ -73,25 +74,31 @@ def TestInfer(score_thr=0.5):
         #prediction
         assert bboxes.shape[1] == 5
         scores = bboxes[:, -1]
+        sub_tmp = {'image_id': image[0], 'PredictionString': '14 1.0 0 0 1 1'}
         if len(scores)>0:
             inds = scores > score_thr
-            if len(inds)>0:
-                bboxes = bboxes[inds, :]
-                labels = labels[inds]
-                result = {
-                            'image_id': image[0],
-                            'PredictionString': format_prediction_string(labels, bboxes, scores)
-                        }
-        results.append(result)
-        sys.stdout.write('\r testing process: = {}'.format(len(results)+1))
+            bboxes = bboxes[inds, :]
+            labels = labels[inds]
+            scores = scores[inds]
+            if len(scores)>0:
+                sub_tmp['PredictionString'] = format_prediction_string(labels, bboxes, scores)
+                #sub = {'image_id': image[0],'PredictionString': format_prediction_string(labels, bboxes, scores)}
+        sub_res.append(sub_tmp)
+        sys.stdout.write('\r process: = {}'.format(len(sub_res)))
         sys.stdout.flush()
     #Save submission file
-    test_df = pd.DataFrame(results, columns=['image_id', 'PredictionString'])
+    test_df = pd.DataFrame(sub_res, columns=['image_id', 'PredictionString'])
+    print("\r set shape: {}".format(test_df.shape)) 
+    print("\r set Columns: {}".format(test_df.columns))
     test_df.to_csv(vin_test_data+'submission.csv', index=False)
 
 def compute_IoUs(xywh1, xywh2):
     x1, y1, w1, h1 = xywh1
+    w1 = w1-x1
+    h1 = h1-y1
     x2, y2, w2, h2 = xywh2
+    w2 = w2-x2
+    h2 = h2-y2
 
     dx = min(x1+w1, x2+w2) - max(x1, x2)
     dy = min(y1+h1, y2+h2) - max(y1, y2)
@@ -102,54 +109,7 @@ def compute_IoUs(xywh1, xywh2):
     
     return IoUs
 
-def get_box(points):
-    min_x = points[0]
-    min_y = points[1]
-    max_x = points[2]
-    max_y = points[3]
-
-    return [min_x, min_y, max_x - min_x, max_y - min_y]
-
-def visHeatmap(self, batch_idx, class_name, image, cam_img, pdbox, gtbox, iou):
-        #raw image 
-        image = (image + 1).squeeze().permute(1, 2, 0) #[-1,1]->[1, 2]
-        image = (image - image.min()) / (image.max() - image.min()) #[1, 2]->[0,1]
-        image = np.uint8(255 * image) #[0,1] ->[0,255]
-        
-        #feature map
-        heat_map = cv2.applyColorMap(np.uint8(cam_img * 255.0), cv2.COLORMAP_JET) #L to RGB
-        heat_map = Image.fromarray(heat_map)#.convert('RGB')#PIL.Image
-        mask_img = Image.new('RGBA', heat_map.size, color=0) #transparency
-        #paste heatmap
-        x1, y1, w, h = np.array(pdbox).astype(int)
-        x2, y2, w, h = np.array(gtbox).astype(int)
-        cropped_roi = heat_map.crop((x1,y1,x1+w,y1+h))
-        mask_img.paste(cropped_roi, (x1,y1,x1+w,y1+h))
-        cropped_roi = heat_map.crop((x2,y2,x2+w,y2+h))
-        mask_img.paste(cropped_roi, (x2,y2,x2+w,y2+h))
-        #plot
-        output_img = cv2.addWeighted(image, 0.7, np.asarray(mask_img.convert('RGB')), 0.3, 0)
-        fig, ax = plt.subplots(1)# Create figure and axes
-        ax.imshow(output_img)
-        rect = patches.Rectangle((x1, y1), w, h, linewidth=2, edgecolor='b', facecolor='none')# Create a Rectangle patch
-        ax.add_patch(rect)# Add the patch to the Axes
-        rect = patches.Rectangle((x2, y2), w, h, linewidth=2, edgecolor='r', facecolor='none')# Create a Rectangle patch
-        ax.add_patch(rect)# Add the patch to the Axes
-        ax.axis('off')
-        fig.savefig(config['img_path']+ str(batch_idx+1) +'_'+class_name+'_'+ str(iou)[0:6] +'.png')
-        """
-        image = Image.fromarray(image).convert('RGB')#PIL.Image
-        x2, y2, w, h = np.array(gtbox).astype(int)
-        cropped_roi = image.crop((x2,y2,x2+w,y2+h))
-        width, height = image.size
-        cropped_roi = cropped_roi.resize((width, height),Image.ANTIALIAS)
-        fig, ax = plt.subplots(1)# Create figure and axes
-        ax.imshow(cropped_roi)
-        ax.axis('off')
-        fig.savefig(config['img_path']+str(batch_idx+1)+'_'+class_name+'.png')
-        """
-
-def ValInfer(show_thr=0.8):
+def ValInfer(score_thr=0.5, show_thr=0.80):
     vin_val_file = '/data/pycode/CXRAD/dataset/VinCXR_val.txt'
     vin_val_image = '/data/fjsdata/Vin-CXR/train_val_jpg/'
     vin_val_data = '/data/comcode/mmdetection/vincxr/val/'
@@ -161,9 +121,8 @@ def ValInfer(show_thr=0.8):
     model = init_detector(config_file, checkpoint_file, device='cuda:6')
 
     # test images and show the results
-    images = pd.read_csv(vin_val_file, sep=',').values
+    images = pd.read_csv(vin_val_file, sep=',', header=None).values
     IoUs = []
-    Acc = 0
     for image in images:
         img = vin_val_image + image[0]+'.jpeg'
         gtlbl = image[1]
@@ -187,23 +146,34 @@ def ValInfer(show_thr=0.8):
         assert bboxes.shape[1] == 5
         scores = bboxes[:, -1]
         IoU = 0.0
-        if gtlbl in labels: #hit ratio
-            Acc = Acc + 1 
-            inds =   labels == gtlbl
+        if len(scores)>0:
+            inds = scores > score_thr
             bboxes = bboxes[inds, :]
             labels = labels[inds]
-            for box in bboxes:
-                IoU_tmp = compute_IoUs(gtbox, box[:-1])
-                if IoU_tmp > IoU: 
-                    IoU = IoU_tmp
-                    if IoU_tmp > show_thr: #show
-                        pass
+            scores = scores[inds]
+            if gtlbl in labels: #hit ratio
+                inds =  labels == gtlbl
+                bboxes = bboxes[inds, :]
+                for box in bboxes:
+                    IoU_tmp = compute_IoUs(gtbox, box[:-1])
+                    if IoU_tmp > IoU: 
+                        IoU = IoU_tmp
+                        if IoU_tmp > show_thr: #show
+                            fig, ax = plt.subplots()# Create figure and axes
+                            ax.imshow(Image.open(img))
+                            rect = patches.Rectangle((gtbox[0], gtbox[1]), gtbox[2]-gtbox[0], gtbox[3]-gtbox[1], linewidth=2, edgecolor='b', facecolor='none')
+                            ax.add_patch(rect)# add groundtruth
+                            rect = patches.Rectangle((box[0], box[1]), box[2]-box[0], box[3]-box[1], linewidth=2, edgecolor='r', facecolor='none')
+                            ax.add_patch(rect) #add predicted boundingbox
+                            ax.text(gtbox[0], gtbox[1], CLASS_NAMES_Vin[gtlbl])
+                            ax.axis('off')
+                            fig.savefig(vin_val_data + image[0]+'.jpeg')
         IoUs.append(IoU)
-        sys.stdout.write('\r testing process: = {}'.format(len(results)+1))
+        sys.stdout.write('\r testing process: = {}'.format(len(IoUs)))
         sys.stdout.flush()
-        #evaluation
-        print('The average IoU is {:.4f}'.format(np.array(IoUs).mean()))
-        print('The Accuracy is {:.4f}'.format(Acc/len(images)))
+    #evaluation
+    print('The average IoU is {:.4f}'.format(np.array(IoUs).mean()))
+    print('The Accuracy is {:.4f}'.format(Acc/len(images)))
 
 def main():
     #ValInfer()
