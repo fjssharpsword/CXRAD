@@ -98,7 +98,7 @@ def get_test_dataloader_VIN(batch_size, shuffle, num_workers):
 
 def get_train_dataloader_VIN(batch_size, shuffle, num_workers):
     dataset_train = DatasetGenerator(path_to_img_dir=PATH_TO_IMAGES_DIR_Vin_Train,
-                                          path_to_dataset_file=[PATH_TO_TRAIN_FILE_VIN, PATH_TO_VAL_FILE_VIN], transform=transform_seq_train, is_test=False)
+                                          path_to_dataset_file=[PATH_TO_TRAIN_FILE_VIN], transform=transform_seq_train, is_test=False)
     data_loader_train = DataLoader(dataset=dataset_train, batch_size=batch_size,
                                    shuffle=shuffle, num_workers=num_workers, pin_memory=True)
     return data_loader_train

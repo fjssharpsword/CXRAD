@@ -252,3 +252,30 @@
  Eopch:    41 validation loss = 0.083893, Validataion AUROC = 0.9507
  Eopch:    42 validation loss = 0.089346, Validataion AUROC = 0.9480
  Eopch:    43 validation loss = 0.085915, Validataion AUROC = 0.9503
+ Eopch:     1 validation loss = 0.128665, Validataion AUROC = 0.8548
+ Eopch:     2 validation loss = 0.121084, Validataion AUROC = 0.8733
+ Eopch:     3 validation loss = 0.127037, Validataion AUROC = 0.8791
+ Eopch:     4 validation loss = 0.126488, Validataion AUROC = 0.8844
+ Eopch:     5 validation loss = 0.165182, Validataion AUROC = 0.8621
+ Eopch:     6 validation loss = 0.122506, Validataion AUROC = 0.8849
+ Eopch:     7 validation loss = 0.121998, Validataion AUROC = 0.8865
+ Eopch:     8 validation loss = 0.115934, Validataion AUROC = 0.8887
+ Eopch:     9 validation loss = 0.124504, Validataion AUROC = 0.8833
+ Eopch:    10 validation loss = 0.122078, Validataion AUROC = 0.8890
+ Eopch:    11 validation loss = 0.126833, Validataion AUROC = 0.8883
+ Eopch:    12 validation loss = 0.119160, Validataion AUROC = 0.8951
+ Eopch:    13 validation loss = 0.131337, Validataion AUROC = 0.8857
+ Eopch:    14 validation loss = 0.119142, Validataion AUROC = 0.8876
+ Eopch:    15 validation loss = 0.145921, Validataion AUROC = 0.8779
+ Eopch:    16 validation loss = 0.120865, Validataion AUROC = 0.8892
+ Eopch:    17 validation loss = 0.129268, Validataion AUROC = 0.8892
+ Eopch:    18 validation loss = 0.129144, Validataion AUROC = 0.8871
+ Eopch:    19 validation loss = 0.129729, Validataion AUROC = 0.8827
+ Eopch:    20 validation loss = 0.125122, Validataion AUROC = 0.8842
+ Eopch:    21 validation loss = 0.126763, Validataion AUROC = 0.8847
+ Eopch:    22 validation loss = 0.121904, Validataion AUROC = 0.8872
+ Eopch:    23 validation loss = 0.122792, Validataion AUROC = 0.8815
+ Eopch:    24 validation loss = 0.128977, Validataion AUROC = 0.8885
+ Eopch:    25 validation loss = 0.116873, Validataion AUROC = 0.8927
+ Eopch:    26 validation loss = 0.119502, Validataion AUROC = 0.8858
+ Eopch:    27 validation loss = 0.120820, Validataion AUROC = 0.8840
